@@ -11,7 +11,7 @@ route:
 receivers:
 - name: 'telegram'
   telegram_configs:
-  - bot_token: "7049864536:AAEG1UI5Y9gleLIS0zYBhGTA3EEsMvfrsl0"
+  - bot_token: "7001246038:AAE1NUFp6xx94nITHQPW0zL48sY1RSN2cVA"
     chat_id: -4113318976
 
 #  https://api.telegram.org/botINSERT_BOT_ID_HERE/getUpdates - to get chat_id
