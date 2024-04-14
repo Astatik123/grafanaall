@@ -33,4 +33,7 @@ scrape_configs:
 
   - job_name: "cadvisor"
     static_configs:
-      - targets: ["cadvisor:8080"]              
+      - targets: ["cadvisor:8080"]
+  - job_name: "windows"
+    static_configs:
+      - targets: ["localhost:9182"]    
