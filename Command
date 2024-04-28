@@ -1,0 +1,37 @@
+docker service create --name grafana \
+  --image grafana/grafana:10.1.5-ubuntu \
+  --publish 3000:3000 \
+  --mount type=volume,source=grafana-data,target=/var/lib/grafana \
+  --mount type=bind,source=$(pwd)/configs/grafana/datasources,target=/etc/grafana/provisioning/datasources/ \
+  --mount type=bind,source=$(pwd)/configs/grafana/dashboards,target=/etc/grafana/provisioning/dashboards/ \
+  --mode global
+
+
+docker service create --name prometheus \
+  --image prom/prometheus:v2.47.2 \
+  --publish 9090:9090 \
+  --mount type=volume,source=prom-data,target=/prometheus \
+  --mount type=bind,source=$(pwd)/configs/prometheus/alert_rules.yml,target=/etc/prometheus/alert_rules.yml \
+  --mount type=bind,source=$(pwd)/configs/prometheus/prometheus.yml,target=/etc/prometheus/prometheus.yml \
+  --command '--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/prometheus --web.external-url=http://127.0.0.1:9090 --web.console.libraries=/usr/share/prometheus/console_libraries --web.console.templates=/usr/share/prometheus/consoles' \
+  --mode global
+
+# Создание сервиса Node Exporter
+docker service create --name node-exporter \
+  --image prom/node-exporter:v1.6.1 \
+  --publish 9100:9100 \
+  --mount type=bind,source=/proc,target=/host/proc,readonly \
+  --mount type=bind,source=/sys,target=/host/sys,readonly \
+  --mount type=bind,source=/,target=/rootfs,readonly \
+  --command '--path.procfs=/host/proc --path.sysfs=/host/sys --collector.filesystem.mount-points-exclude "^/(sys|proc|dev|host|etc|rootfs/var/lib/docker/containers|rootfs/var/lib/docker/overlay2|rootfs/run/docker/netns|rootfs/var/lib/docker/aufs)($$|/)"' \
+  --mode global
+
+# Создание сервиса cAdvisor
+docker service create --name cadvisor \
+  --image gcr.io/cadvisor/cadvisor:v0.47.0 \
+  --publish 8080:8080 \
+  --mount type=bind,source=/,target=/rootfs,readonly \
+  --mount type=bind,source=/var/run,target=/var/run,rw \
+  --mount type=bind,source=/sys,target=/sys,readonly \
+  --mount type=bind,source=/var/lib/docker/,target=/var/lib/docker,readonly \
+  --mode global
